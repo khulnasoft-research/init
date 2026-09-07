@@ -9,8 +9,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'Platforms Starter Kit',
-  description: 'Next.js template for building a multi-tenant SaaS.'
+  title: 'Northstar Cloud | Platform Console',
+  description: 'A central platform console for deploying, monitoring, and scaling applications.'
 };
 
 export default function RootLayout({
