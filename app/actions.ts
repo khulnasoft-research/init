@@ -1,69 +1,51 @@
 'use server';
 
-import { redis } from '@/lib/redis';
-import { isValidIcon } from '@/lib/subdomains';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { rootDomain, protocol } from '@/lib/utils';
+import { createTenant, deleteTenant, getTenant } from '@/lib/platform/tenant-repository';
+import { isValidIcon, validateSubdomain } from '@/lib/platform/tenancy';
+import { requireAdminAccess } from '@/lib/platform/access';
+import { tenantUrl } from '@/lib/platform/config';
+
+type CreateState = {
+  subdomain?: string;
+  icon?: string;
+  success?: boolean;
+  error?: string;
+};
 
 export async function createSubdomainAction(
-  prevState: any,
+  _prevState: CreateState,
   formData: FormData
-) {
-  const subdomain = formData.get('subdomain') as string;
-  const icon = formData.get('icon') as string;
+): Promise<CreateState> {
+  const subdomain = String(formData.get('subdomain') || '');
+  const icon = String(formData.get('icon') || '');
+  const validationError = validateSubdomain(subdomain);
 
-  if (!subdomain || !icon) {
-    return { success: false, error: 'Subdomain and icon are required' };
-  }
-
-  if (!isValidIcon(icon)) {
+  if (validationError || !isValidIcon(icon)) {
     return {
       subdomain,
       icon,
       success: false,
-      error: 'Please enter a valid emoji (maximum 10 characters)'
+      error: validationError || 'Please enter a valid emoji (maximum 10 characters)'
     };
   }
 
-  const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-
-  if (sanitizedSubdomain !== subdomain) {
-    return {
-      subdomain,
-      icon,
-      success: false,
-      error:
-        'Subdomain can only have lowercase letters, numbers, and hyphens. Please try again.'
-    };
+  if (await getTenant(subdomain)) {
+    return { subdomain, icon, success: false, error: 'This subdomain is already taken' };
   }
 
-  const subdomainAlreadyExists = await redis.get(
-    `subdomain:${sanitizedSubdomain}`
-  );
-  if (subdomainAlreadyExists) {
-    return {
-      subdomain,
-      icon,
-      success: false,
-      error: 'This subdomain is already taken'
-    };
-  }
-
-  await redis.set(`subdomain:${sanitizedSubdomain}`, {
-    emoji: icon,
-    createdAt: Date.now()
-  });
-
-  redirect(`${protocol}://${sanitizedSubdomain}.${rootDomain}`);
+  await createTenant(subdomain, icon);
+  redirect(tenantUrl(subdomain));
 }
 
 export async function deleteSubdomainAction(
-  prevState: any,
+  _prevState: unknown,
   formData: FormData
 ) {
-  const subdomain = formData.get('subdomain');
-  await redis.del(`subdomain:${subdomain}`);
+  await requireAdminAccess();
+  const subdomain = String(formData.get('subdomain') || '');
+  if (!validateSubdomain(subdomain)) await deleteTenant(subdomain);
   revalidatePath('/admin');
   return { success: 'Domain deleted successfully' };
 }

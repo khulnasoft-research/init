@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+
+# logs
+npm-debug.log
+pnpm-debug.log
+
+# coverage
+coverage
+.nyc_output
+
+# build
+dist/

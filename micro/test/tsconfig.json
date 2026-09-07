@@ -1,0 +1,10 @@
+{
+  "extends": "@vercel/style-guide/typescript",
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "CommonJS",
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "noEmit": true
+  }
+}
