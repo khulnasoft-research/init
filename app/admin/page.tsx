@@ -13,9 +13,5 @@ export default async function AdminPage() {
   await requireAdminAccess();
   const tenants = await getAllSubdomains();
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <AdminDashboard tenants={tenants} />
-    </div>
-  );
+  return <AdminDashboard tenants={tenants} />;
 }

@@ -18,6 +18,8 @@ export async function createSubdomainAction(
   _prevState: CreateState,
   formData: FormData
 ): Promise<CreateState> {
+  await requireAdminAccess();
+
   const subdomain = String(formData.get('subdomain') || '');
   const icon = String(formData.get('icon') || '');
   const validationError = validateSubdomain(subdomain);

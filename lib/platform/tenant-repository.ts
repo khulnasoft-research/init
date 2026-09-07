@@ -28,6 +28,8 @@ export async function deleteTenant(subdomain: string) {
 }
 
 export async function listTenants(): Promise<TenantRecord[]> {
+  if (!platformConfig.redisUrl || !platformConfig.redisToken) return [];
+
   const indexed = await redis.smembers(platformConfig.tenantIndexKey);
   const keys = indexed.length ? indexed.map(keyFor) : await redis.keys('subdomain:*');
   if (!keys.length) return [];
