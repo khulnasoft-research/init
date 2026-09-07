@@ -34,7 +34,8 @@ import {
   Trash2,
   Workflow,
   X,
-  Zap
+  Zap,
+  LayoutTemplate
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,6 +63,7 @@ const primaryNav: NavItem[] = [
 ];
 
 const platformNav: NavItem[] = [
+  { label: 'Templates', icon: LayoutTemplate },
   { label: 'Connect', icon: Code2 },
   { label: 'Integrations', icon: Layers3 },
   { label: 'Storage', icon: Database },
@@ -188,8 +190,16 @@ export function AdminDashboard({ tenants }: { tenants: Tenant[] }) {
         </header>
         <div className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
           <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Workspace overview</p>
+          {active === 'Templates' ? (
+            <div className="mb-8 rounded-xl border border-border bg-card p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Template catalog</p><h1 className="mt-2 text-2xl font-semibold tracking-tight">Start from a proven foundation.</h1><p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Browse curated starters and solutions for your next project.</p></div>
+                <Button asChild className="w-fit gap-2"><Link href="/templates">Browse templates <ExternalLink className="size-4" /></Link></Button>
+              </div>
+            </div>
+          ) : null}
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Workspace overview</p>
               <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Projects</h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Deploy, monitor, and scale the applications connected to your central platform.</p>
             </div>
